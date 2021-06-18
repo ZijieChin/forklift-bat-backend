@@ -61,71 +61,71 @@ type SwitchBattery struct {
 	FullNo     string
 }
 
-var db *gorm.DB
+var DB *gorm.DB
 
 func SyncDatabase() {
-	db = database.InitDatabase()
-	db.AutoMigrate(&Forklift{}, &Warehouse{}, &Battery{}, &ForkCat{}, &User{}, &Group{}, &SwitchBattery{})
+	DB = database.InitDatabase()
+	DB.AutoMigrate(&Forklift{}, &Warehouse{}, &Battery{}, &ForkCat{}, &User{}, &Group{}, &SwitchBattery{})
 }
 
 func (User) GetUser(userid string) (user []User) {
-	db.Where(&User{UserID: userid}).Find(&user)
+	DB.Where(&User{UserID: userid}).Find(&user)
 	return
 }
 
 func (Forklift) GetForkliftNo(dc, cat string) (forklifts []Forklift) {
-	db.Where(&Forklift{Warehouse: dc, Category: cat}).Find(&forklifts)
+	DB.Where(&Forklift{Warehouse: dc, Category: cat}).Find(&forklifts)
 	return
 }
 
 func (Warehouse) GetWarehouse(dc string) (warehouse []Warehouse) {
-	db.Where(&Warehouse{Number: dc}).First(&warehouse)
+	DB.Where(&Warehouse{Number: dc}).First(&warehouse)
 	return
 }
 
 func (ForkCat) GetForkCat(no string) (forkcat []ForkCat) {
-	db.Where(&ForkCat{Number: no}).First(&forkcat)
+	DB.Where(&ForkCat{Number: no}).First(&forkcat)
 	return
 }
 
 func (Battery) GetBatStatus(batNo string, forklift string, dc string) (battery []Battery) {
-	db.Where(&Battery{Number: batNo, Forklift: forklift, Warehouse: dc}).First(&battery)
+	DB.Where(&Battery{Number: batNo, Forklift: forklift, Warehouse: dc}).First(&battery)
 	return
 }
 
 func (SwitchBattery) GetBatSwitch(fullNo string) (switchbattery []SwitchBattery) {
-	db.Where(&SwitchBattery{FullNo: fullNo}).Last(&switchbattery)
+	DB.Where(&SwitchBattery{FullNo: fullNo}).Last(&switchbattery)
 	return
 }
 
 func InsertForks(insertbody *Forklift) error {
-	result := db.Create(&insertbody)
+	result := DB.Create(&insertbody)
 	return result.Error
 }
 
 func InsertWarehouse(insertbody *Warehouse) error {
-	result := db.Create(&insertbody)
+	result := DB.Create(&insertbody)
 	return result.Error
 }
 
 func InsertForkCat(insertbody *ForkCat) error {
-	result := db.Create(&insertbody)
+	result := DB.Create(&insertbody)
 	return result.Error
 }
 
 func InsertBattery(insertbody *Battery) error {
-	result := db.Create(&insertbody)
+	result := DB.Create(&insertbody)
 	return result.Error
 }
 
 func InsertBatSwitch(insertbody *SwitchBattery) error {
-	result := db.Create(&insertbody)
+	result := DB.Create(&insertbody)
 	return result.Error
 }
 
 func UpdateBatStatus(updateBat *Battery, updateBatSwitch *SwitchBattery, fullNo string, fullnocat string) error {
 	battery := Battery{}
-	worker := db.Begin()
+	worker := DB.Begin()
 	batResult := worker.Model(&battery).Where("full_no=?", fullnocat).Updates(updateBat)
 	switchResult := worker.Create(&updateBatSwitch)
 	if batResult.Error == nil && switchResult.Error == nil {
